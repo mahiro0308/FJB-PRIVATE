@@ -1,31 +1,30 @@
-using JetBrains.Annotations;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Networking;
-using UnityEngine.UI; // UI要素の使用に必要
+using UnityEngine.UI;
 
 public class GetBuildingDetail : MonoBehaviour
 {
-    private const string phpUrl = "https://requin.jp/FJB/PHP/building-sql.php"; // PHPスクリプトのURL
+    private const string phpUrl = "https://requin.jp/FJB/PHP/building-sql.php";
 
-    public Text result_building_text; // UnityのTextコンポーネントをアタッチ
+    public Text result_building_text;
     private string className;
 
-    public float typingSpeed = 0.05f; // 文字の表示速度（秒）
+    public float typingSpeed = 0.025f;
 
-    private string fullText = ""; // 完全なテキスト
-    private string currentText = ""; // 現在表示されているテキスト
+    private string fullText = ""; // 表示するテキスト全体
+    private string currentText = ""; // 現在表示中のテキスト
     public static string TypingStatus { get; private set; } = "NotStarted";
 
-    // Start is called before the first frame update
+    private BuildingData currentBuildingData; // 現在の建物データ
+    private int textIndex = 0; // 現在のテキストインデックス
+
     void Start()
     {
-        // CameraCaptureからclass_nameを取得
-        className = CameraCapture.ClassName; // CameraCaptureはstatic ClassNameがあることを前提
+        className = CameraCapture.ClassName;
 
         if (!string.IsNullOrEmpty(className))
         {
-            // データ取得コルーチンを開始
             StartCoroutine(GetBuildingData(className));
         }
         else
@@ -36,9 +35,8 @@ public class GetBuildingDetail : MonoBehaviour
 
     IEnumerator GetBuildingData(string className)
     {
-        // POSTデータの作成
         WWWForm form = new WWWForm();
-        form.AddField("class_name", className); // "class_name"キーに値を追加
+        form.AddField("class_name", className);
 
         using (UnityWebRequest www = UnityWebRequest.Post(phpUrl, form))
         {
@@ -54,19 +52,16 @@ public class GetBuildingDetail : MonoBehaviour
             string jsonResponse = www.downloadHandler.text;
             Debug.Log("Response: " + jsonResponse);
 
-            // JSONをパース
             try
             {
-                BuildingData data = JsonUtility.FromJson<BuildingData>(jsonResponse);
+                currentBuildingData = JsonUtility.FromJson<BuildingData>(jsonResponse);
 
-                if (data != null && !string.IsNullOrEmpty(data.buildingName))
+                if (currentBuildingData != null && !string.IsNullOrEmpty(currentBuildingData.buildingName))
                 {
-                    Debug.Log("Building Name: " + data.buildingName);
-                    Debug.Log("Text One: " + data.TextOne);
+                    Debug.Log("Building Name: " + currentBuildingData.buildingName);
 
-                    // テキストをUIに表示（タイプライター効果用にfullTextを設定）
-                    fullText = data.TextOne;
-                    StartCoroutine(ShowText());
+                    textIndex = 0; // 初期化
+                    ShowNextText(); // 最初のテキストを表示
                 }
                 else
                 {
@@ -82,23 +77,43 @@ public class GetBuildingDetail : MonoBehaviour
         }
     }
 
+    public void ShowNextText()
+    {
+        if (currentBuildingData == null)
+            return;
+
+        TypingStatus = "InProgress";
+
+        // 次に表示するテキストを取得
+        if (textIndex == 0)
+            fullText = currentBuildingData.TextOne;
+        else if (textIndex == 1)
+            fullText = currentBuildingData.TextTwo;
+        else if (textIndex == 2)
+            fullText = currentBuildingData.TextThree;
+        else
+        {
+            TypingStatus = "Completed";
+            return; // すべてのテキストを表示し終えたら終了
+        }
+
+        textIndex++;
+        StartCoroutine(ShowText());
+    }
+
     IEnumerator ShowText()
     {
-        TypingStatus = "InProgress"; // タイプライター開始時に更新
-
-        currentText = ""; // タイプライターを開始する際にクリア
+        currentText = "";
         foreach (char c in fullText)
         {
             currentText += c;
-            result_building_text.text = currentText; // 正しいTextコンポーネントを使用
+            result_building_text.text = currentText;
             yield return new WaitForSeconds(typingSpeed);
         }
 
-        TypingStatus = "Completed"; // 終了時に更新
-
+        TypingStatus = "Completed";
     }
 
-    // BuildingDataクラス
     [System.Serializable]
     public class BuildingData
     {

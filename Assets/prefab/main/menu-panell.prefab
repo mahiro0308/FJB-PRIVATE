@@ -121,7 +121,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 4842906255312856230}
         m_TargetAssemblyTypeName: PanelToggle, Assembly-CSharp
         m_MethodName: TogglePanel
         m_Mode: 1
@@ -2454,6 +2454,7 @@ GameObject:
   - component: {fileID: 1080540759548629105}
   - component: {fileID: 8595703217145832910}
   - component: {fileID: 5548090978551594799}
+  - component: {fileID: 4842906255312856230}
   m_Layer: 5
   m_Name: menu-panell
   m_TagString: Untagged
@@ -2550,6 +2551,19 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &4842906255312856230
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6085852359028470701}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ad36b467501a73f449de0a9f965e0863, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  panel: {fileID: 2329830121484642898}
 --- !u!1 &6850633428090790897
 GameObject:
   m_ObjectHideFlags: 0
@@ -3357,7 +3371,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 4842906255312856230}
         m_TargetAssemblyTypeName: PanelToggle, Assembly-CSharp
         m_MethodName: TogglePanel
         m_Mode: 1

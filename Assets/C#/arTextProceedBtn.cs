@@ -1,19 +1,16 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI; // UI要素の使用に必要
+using UnityEngine.UI;
 
 public class ArTextProceedBtn : MonoBehaviour
 {
-    public Button proceedBtn; // ボタンを Unity エディタで設定する
-    private bool isButtonShown = false; // ボタンが表示されているかのフラグ
+    public Button proceedBtn;
 
-    void Start()
+    private void Start()
     {
-        // 初期状態でボタンを非表示
         if (proceedBtn != null)
         {
             proceedBtn.gameObject.SetActive(false);
+            proceedBtn.onClick.AddListener(OnProceedButtonClicked);
         }
         else
         {
@@ -21,29 +18,24 @@ public class ArTextProceedBtn : MonoBehaviour
         }
     }
 
-    void Update()
+    private void Update()
     {
-        // TypingStatus が Completed かつボタンが表示されていない場合
-        if (GetBuildingDetail.TypingStatus == "Completed" && !isButtonShown)
+        if (GetBuildingDetail.TypingStatus == "Completed" && !proceedBtn.gameObject.activeSelf)
         {
-            ShowButton();
+            proceedBtn.gameObject.SetActive(true);
         }
-        // TypingStatus が InProgress かつボタンが表示されている場合
-        else if (GetBuildingDetail.TypingStatus == "InProgress" && isButtonShown)
+        else if (GetBuildingDetail.TypingStatus == "InProgress" && proceedBtn.gameObject.activeSelf)
         {
-            HideButton();
+            proceedBtn.gameObject.SetActive(false);
         }
     }
 
-    private void ShowButton()
+    private void OnProceedButtonClicked()
     {
-        proceedBtn.gameObject.SetActive(true);
-        isButtonShown = true;
-    }
-
-    private void HideButton()
-    {
-        proceedBtn.gameObject.SetActive(false);
-        isButtonShown = false;
+        if (GetBuildingDetail.TypingStatus == "Completed")
+        {
+            proceedBtn.gameObject.SetActive(false);
+            FindObjectOfType<GetBuildingDetail>().ShowNextText();
+        }
     }
 }

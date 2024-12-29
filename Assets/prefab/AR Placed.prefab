@@ -101,7 +101,7 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 22
+    m_FontSize: 16
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 7
@@ -300,8 +300,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   result_building_text: {fileID: 3296238076703744915}
-  proceedBtn: {fileID: 2848331010784443191, guid: 46a90085e0e04b644885dc8f548a5795,
-    type: 3}
   typingSpeed: 0.025
 --- !u!1001 &7737234724309926864
 PrefabInstance:

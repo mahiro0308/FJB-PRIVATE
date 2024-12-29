@@ -10,7 +10,7 @@ public class LoginSystem : MonoBehaviour
     public Button loginButton;      // ログインボタン
     public Text resultText;         // 結果を表示するText
 
-    private string url = "http://localhost/login.php"; // ログイン用のPHPスクリプトのURL
+    private string url = "https://requin.jp/FJB/PHP/login.php"; // ログイン用のPHPスクリプトのURL
 
     void Start()
     {
