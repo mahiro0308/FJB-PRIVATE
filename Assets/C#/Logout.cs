@@ -1,41 +1,18 @@
-using System.Collections;
 using UnityEngine;
-using UnityEngine.Networking;
-using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
-public class Logout : MonoBehaviour
+public class LogoutManager : MonoBehaviour
 {
-    public Button logoutButton; // ログアウトボタン
-    private string logoutUrl = "http://localhost/logout.php"; // ログアウト用のPHPスクリプトのURL
-
-    void Start()
+    // ログアウトボタンが押されたときに呼ばれるメソッド
+    public void OnLogoutButtonClicked()
     {
-        logoutButton.onClick.AddListener(OnLogoutButtonClicked);
-    }
+        // ログイン状態をリセット
+        PlayerPrefs.SetString("UserLoggedIn", "logout"); // ログイン状態を未ログインに変更
+        PlayerPrefs.Save(); // 変更を保存
 
-    private void OnLogoutButtonClicked()
-    {
-        StartCoroutine(LogoutUser());
-    }
+        Debug.Log("User logged out!");
 
-    private IEnumerator LogoutUser()
-    {
-        // ログアウト処理中のメッセージ
-
-        using (UnityWebRequest www = UnityWebRequest.Get(logoutUrl))
-        {
-            yield return www.SendWebRequest();
-
-            // エラーチェック
-            if (www.result == UnityWebRequest.Result.ConnectionError ||
-                www.result == UnityWebRequest.Result.ProtocolError ||
-                www.result == UnityWebRequest.Result.DataProcessingError)
-            {
-            }
-            else
-            {
-                Debug.Log("ログアウトエラー");
-            }
-        }
+        // ログイン画面に遷移
+        SceneManager.LoadScene("Top"); // ログイン画面のシーン名に変更
     }
 }

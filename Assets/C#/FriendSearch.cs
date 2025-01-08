@@ -2,14 +2,17 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Networking;
 using System.Collections;
+using JetBrains.Annotations;
 
 public class FriendSearch : MonoBehaviour
 {
     public InputField friendIdInputField; // フレンドID入力用
     public Button addFriendButton; // フレンド追加ボタン
-    private string serverUrl = "http://localhost/friendSearch.php"; // PHPのURL
+    private string serverUrl = "https://requin.jp/FJB/PHP/friendSearch.php"; // PHPのURL
     private string friendId; // フレンドIDを一時保存する変数
     public Text friendIdDisplayText; // 検索結果のフレンドID表示用（Text Legacy）
+
+    public string email =  CheckLoginOnStart.email;
 
     [System.Serializable]
     public class FriendSearchResponse
@@ -35,6 +38,12 @@ public class FriendSearch : MonoBehaviour
 
     private IEnumerator SearchFriendOnServer(string friendId)
     {
+        string email = PlayerPrefs.GetString("accountEmail", ""); // デフォルト値を空文字列に変更
+        if (email == friendId)
+        {
+            yield return "This is valid";
+        }
+
         WWWForm form = new WWWForm();
         form.AddField("friend_id", friendId);
 
@@ -83,12 +92,14 @@ public class FriendSearch : MonoBehaviour
         }
     }
 
-    private IEnumerator SendFriendRequest(string friendId)
+    private IEnumerator SendFriendRequest(string reciverId)
     {
+        
         WWWForm form = new WWWForm();
-        form.AddField("friend_id", friendId);
+        form.AddField("reciverId", reciverId);
+        form.AddField("requestUserId", email);
 
-        using (UnityWebRequest request = UnityWebRequest.Post("http://localhost/FriendRequest.php", form))
+        using (UnityWebRequest request = UnityWebRequest.Post("https://requin.jp/FJB/PHP/friendRequest.php", form))
         {
             yield return request.SendWebRequest();
 

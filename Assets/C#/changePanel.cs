@@ -18,6 +18,7 @@ public class changePanel : MonoBehaviour
     public GameObject arpanel;
     public GameObject chatpanel;
     public GameObject shoppanel;
+    public GameObject settingpanel;
     // ‰Šú‰»ˆ—
     public void Start()
     {
@@ -28,6 +29,7 @@ public class changePanel : MonoBehaviour
         arpanel.SetActive(false);
         chatpanel.SetActive(false);
         shoppanel.SetActive(false);
+        settingpanel.SetActive(false);
         if (AllPanelManager.pubAdPanelManager != null)
         {
             string aa = AllPanelManager.pubAdPanelManager;
@@ -52,6 +54,9 @@ public class changePanel : MonoBehaviour
                     break;
                 case "shop":
                     shoppanel.SetActive(true);
+                    break;
+                case "setting":
+                    settingpanel.SetActive(true);
                     break;
                 default:
                     break;
