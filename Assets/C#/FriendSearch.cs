@@ -1,117 +1,104 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Networking;
-using System.Collections;
-using JetBrains.Annotations;
 
 public class FriendSearch : MonoBehaviour
 {
     public InputField friendIdInputField; // フレンドID入力用
-    public Button addFriendButton; // フレンド追加ボタン
+    public Button addFriendButton;       // フレンド追加ボタン
     private string serverUrl = "https://requin.jp/FJB/PHP/friendSearch.php"; // PHPのURL
-    private string friendId; // フレンドIDを一時保存する変数
-    public Text friendIdDisplayText; // 検索結果のフレンドID表示用（Text Legacy）
-
-    public string email =  CheckLoginOnStart.email;
+    private string friendId;             // フレンドIDを一時保存する変数
+    public Text friendIdDisplayText;     // 検索結果のフレンドID表示用
 
     [System.Serializable]
     public class FriendSearchResponse
     {
         public string status;
         public string message;
-        public string UserId; // 必要なデータを追加
+        public string UserId;
     }
+
+    private string userid;
 
     private void Start()
     {
-        // フレンド追加ボタンを最初は非表示にしておく
-        addFriendButton.gameObject.SetActive(false);
-        friendIdDisplayText.text = ""; // 初期状態では空に設定
+        userid = PlayerPrefs.GetString("userid", ""); // デフォルト値を空文字列に設定
+        addFriendButton.gameObject.SetActive(false); // フレンド追加ボタンを非表示に設定
+        friendIdDisplayText.text = "";              // 初期状態でテキストを空にする
     }
 
     public void SearchFriend()
     {
-        friendId = friendIdInputField.text;
+        friendId = friendIdInputField.text.Trim();
+
+        if (string.IsNullOrEmpty(friendId))
+        {
+            Debug.LogWarning("Friend ID is empty.");
+            friendIdDisplayText.text = "Friend IDを入力してください。";
+            return;
+        }
+
+        if (userid == friendId)
+        {
+            Debug.LogWarning("Cannot search for yourself.");
+            friendIdDisplayText.text = "自分自身を追加することはできません。";
+            return;
+        }
+
         Debug.Log("Searching friend with ID: " + friendId); // デバッグ用出力
         StartCoroutine(SearchFriendOnServer(friendId));
     }
 
     private IEnumerator SearchFriendOnServer(string friendId)
     {
-        string email = PlayerPrefs.GetString("accountEmail", ""); // デフォルト値を空文字列に変更
-        if (email == friendId)
-        {
-            yield return "This is valid";
-        }
-
         WWWForm form = new WWWForm();
         form.AddField("friend_id", friendId);
 
         using (UnityWebRequest request = UnityWebRequest.Post(serverUrl, form))
         {
+            // タイムアウト設定（例: 30秒）
+            request.timeout = 30;
+
             yield return request.SendWebRequest();
 
-            if (request.result == UnityWebRequest.Result.Success)
+            if (request.result != UnityWebRequest.Result.Success)
+            {
+                Debug.LogError("Error searching for friend: " + request.error);
+                friendIdDisplayText.text = "エラーが発生しました。";
+                addFriendButton.gameObject.SetActive(false);
+            }
+            else
             {
                 string responseText = request.downloadHandler.text;
                 Debug.Log("Search result: " + responseText);
 
-                // レスポンスをJSONとして解析
-                var jsonResponse = JsonUtility.FromJson<FriendSearchResponse>(responseText);
-
-                if (jsonResponse.status == "error")
+                try
                 {
-                    Debug.Log("Friend not found.");
-                    addFriendButton.gameObject.SetActive(false); // フレンドが見つからなかった場合、ボタンは非表示
-                    friendIdDisplayText.text = ""; // 見つからなかった場合は空白
+                    var jsonResponse = JsonUtility.FromJson<FriendSearchResponse>(responseText);
+
+                    if (jsonResponse.status == "error")
+                    {
+                        Debug.Log("Friend not found.");
+                        friendIdDisplayText.text = "フレンドが見つかりません。";
+                        addFriendButton.gameObject.SetActive(false);
+                    }
+                    else
+                    {
+                        Debug.Log("Friend found! You can proceed with the friend request.");
+                        friendIdDisplayText.text = jsonResponse.UserId;
+                        addFriendButton.gameObject.SetActive(true);
+                    }
                 }
-                else
+                catch (System.Exception ex)
                 {
-                    Debug.Log("Friend found! You can proceed with the friend request.");
-                    addFriendButton.gameObject.SetActive(true);
-                    friendIdDisplayText.text = friendId;
+                    Debug.LogError("Error parsing JSON response: " + ex.Message);
+                    friendIdDisplayText.text = "無効な応答形式です。";
+                    addFriendButton.gameObject.SetActive(false);
                 }
             }
-            else
-            {
-                Debug.LogError("Error searching for friend: " + request.error);
-            }
         }
     }
 
-    // フレンド追加ボタンを押した時の処理
-    public void OnAddFriend()
-    {
-        if (!string.IsNullOrEmpty(friendId))
-        {
-            StartCoroutine(SendFriendRequest(friendId));
-        }
-        else
-        {
-            Debug.LogError("Friend ID is empty.");
-        }
-    }
-
-    private IEnumerator SendFriendRequest(string reciverId)
-    {
-        
-        WWWForm form = new WWWForm();
-        form.AddField("reciverId", reciverId);
-        form.AddField("requestUserId", email);
-
-        using (UnityWebRequest request = UnityWebRequest.Post("https://requin.jp/FJB/PHP/friendRequest.php", form))
-        {
-            yield return request.SendWebRequest();
-
-            if (request.result == UnityWebRequest.Result.Success)
-            {
-                Debug.Log("Friend request sent successfully: " + request.downloadHandler.text);
-                addFriendButton.gameObject.SetActive(false); // 追加後にボタンを非表示
-            }
-            else
-            {
-                Debug.LogError("Error sending friend request: " + request.error);
-            }
-        }
-    }
+   
 }

@@ -1,48 +1,55 @@
-using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.Networking;
 using System.Collections;
-using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.Networking;
+using UnityEngine.UI;
 
-public class FriendListManager : MonoBehaviour
+public class FriendRequest : MonoBehaviour
 {
-    public Text friendListText; // UIにフレンドリストを表示するためのText
-    private string serverUrl = "http://localhost/getFriendList.php"; // フレンドリストを取得するPHPのURL
-    private string userId = "1"; // 仮のユーザーID（実際にはログインしたユーザーIDを使う）
+    public Text receiverUserId;
+    [SerializeField] private string serverUrl = "https://requin.jp/FJB/PHP/friendRequest.php"; // PHPのURL
+    [SerializeField] private Text friendIdDisplayText; // フレンドリクエスト状態を表示するUI
+    [SerializeField] private Button addFriendButton;   // フレンド追加ボタン
 
-    private void Start()
+    // フレンド追加メソッド（コルーチンとして実行）
+    public void AddFriend()
     {
-        // フレンドリストを取得
-        StartCoroutine(GetFriendList(userId));
+        StartCoroutine(SendFriendRequestCoroutine());
     }
 
-    private IEnumerator GetFriendList(string userId)
+    private IEnumerator SendFriendRequestCoroutine()
     {
+        string receiverId = receiverUserId.text;
+        string requestUserid = PlayerPrefs.GetString("UserId", "");
+        if (requestUserid == receiverId)
+        {
+            Debug.LogWarning("Cannot add yourself as a friend.");
+            friendIdDisplayText.text = "自分自身を追加することはできません。";
+            yield break;
+        }
+
         WWWForm form = new WWWForm();
-        form.AddField("user_id", userId);
+        form.AddField("receiverId", receiverId);
+        form.AddField("requestUserId", requestUserid);
 
         using (UnityWebRequest request = UnityWebRequest.Post(serverUrl, form))
         {
+            // タイムアウト設定（例: 30秒）
+
             yield return request.SendWebRequest();
 
-            if (request.result == UnityWebRequest.Result.Success)
+            if (request.result != UnityWebRequest.Result.Success)
             {
-                string responseText = request.downloadHandler.text;
-                Debug.Log("Friend list received: " + responseText);
-
-                // 受け取ったフレンドリストの処理（カンマ区切りでIDが返されていると仮定）
-                string[] friendIds = responseText.Split(',');
-
-                // フレンドリストをUIに表示
-                friendListText.text = "Friend List:\n";
-                foreach (var friendId in friendIds)
-                {
-                    friendListText.text += "ID: " + friendId + "\n";
-                }
+                Debug.LogError("Error sending friend request: " + request.error);
+                friendIdDisplayText.text = "フレンドリクエスト送信中にエラーが発生しました。";
             }
             else
             {
-                Debug.LogError("Error fetching friend list: " + request.error);
+                Debug.Log("Friend request sent successfully: " + request.downloadHandler.text);
+                friendIdDisplayText.text = "フレンドリクエストが送信されました。";
+                Debug.Log(receiverId);
+
+                // ボタンを非表示にする
+                addFriendButton.gameObject.SetActive(false);
             }
         }
     }

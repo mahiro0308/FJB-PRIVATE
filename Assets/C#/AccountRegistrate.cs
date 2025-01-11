@@ -58,7 +58,7 @@ public class CheckLoginStatus : MonoBehaviour
                 if (response.status == "success")
                 {
                     Debug.Log("Registration successful: " + response.message);
-                    PlayerPrefs.SetString("accountEmail", email);
+                    PlayerPrefs.SetString("userid", userid);
                     PlayerPrefs.SetString("UserLoggedIn", "login"); // ログインフラグを保存
                     PlayerPrefs.Save();
                     // 必要に応じて画面遷移などを行う

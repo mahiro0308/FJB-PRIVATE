@@ -4,12 +4,12 @@ using UnityEngine.SceneManagement;
 
 public class CheckLoginOnStart : MonoBehaviour
 {
-    public static string email { get; private set; }
+    public static string userid { get; private set; }
     public void LoginCheck()
     {
         Debug.Log("Checking login status...");
         string isLoggedIn = PlayerPrefs.GetString("UserLoggedIn", "No login"); // デフォルト値は0
-        
+        userid = PlayerPrefs.GetString("userid", "");
 
         // 保存された値をログに出力
         Debug.Log("Current UserLoggedIn value: " + isLoggedIn);
@@ -17,7 +17,6 @@ public class CheckLoginOnStart : MonoBehaviour
         if (isLoggedIn == "login")
         {
 
-            email = PlayerPrefs.GetString("accountEmail", "No email");
             Debug.Log("User is logged in!");
             SceneManager.LoadScene("home"); // ログイン画面に遷移
         }

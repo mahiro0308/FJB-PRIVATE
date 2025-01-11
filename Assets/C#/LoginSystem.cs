@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class LoginSystem : MonoBehaviour
@@ -8,7 +9,6 @@ public class LoginSystem : MonoBehaviour
     public InputField userIdInput; // UserId用のInputField
     public InputField passwordInput; // Password用のInputField
     public Button loginButton;      // ログインボタン
-    public Text resultText;         // 結果を表示するText
 
     private string url = "https://requin.jp/FJB/PHP/login.php"; // ログイン用のPHPスクリプトのURL
 
@@ -27,14 +27,14 @@ public class LoginSystem : MonoBehaviour
         // 入力値があるか確認
         if (string.IsNullOrEmpty(userIdInput.text) || string.IsNullOrEmpty(passwordInput.text))
         {
-            resultText.text = "User IDとPasswordを入力してください";
+            Debug.Log("UserId または Password が空です。");
             yield break;
         }
 
         // フォームデータの作成
         WWWForm form = new WWWForm();
-        form.AddField("UserId", userIdInput.text); // UserIdを追加
-        form.AddField("password", passwordInput.text); // Passwordを追加
+        form.AddField("userid", userIdInput.text.Trim()); // ユーザー名のトリム
+        form.AddField("password", passwordInput.text);   // パスワード
 
         using (UnityWebRequest www = UnityWebRequest.Post(url, form))
         {
@@ -42,31 +42,36 @@ public class LoginSystem : MonoBehaviour
 
             if (www.result == UnityWebRequest.Result.ConnectionError || www.result == UnityWebRequest.Result.ProtocolError)
             {
-                resultText.text = "Error: " + www.error;
+                Debug.LogError($"Network Error: {www.error}");
+            }
+            else if (www.responseCode != 200)
+            {
+                Debug.LogError($"HTTP Error: {www.responseCode}");
             }
             else
             {
-                // サーバーからの応答を解析
                 string responseText = www.downloadHandler.text;
+                Debug.Log($"Response from server: {responseText}");
 
-                // JSONのパースと応答チェック
                 try
                 {
                     var response = JsonUtility.FromJson<LoginResponse>(responseText);
 
-                    if (response.status == "ログイン")
+                    if (response.status == "success")
                     {
-                        resultText.text = "Login successful!";
-                        // ログイン成功時の処理（必要に応じて画面遷移など）
+                        PlayerPrefs.SetString("userid", userIdInput.text.Trim());
+                        PlayerPrefs.SetString("UserLoggedIn", "login");
+                        PlayerPrefs.Save();
+                        SceneManager.LoadScene("Top");
                     }
                     else
                     {
-                        resultText.text = "Login failed: " + response.message;
+                        Debug.Log($"Login failed: {response.message}");
                     }
                 }
-                catch
+                catch (System.Exception ex)
                 {
-                    resultText.text = "Unexpected response format";
+                    Debug.LogError($"Unexpected response format: {ex.Message}");
                 }
             }
         }

@@ -99,6 +99,9 @@ public class changePanel : MonoBehaviour
             case "shop":
                 shoppanel.SetActive(true);
                 break;
+            case "setting":
+                settingpanel.SetActive(true);
+                break;
             default:
                 Debug.LogError("Invalid panel name: " + panelName);
                 break;
