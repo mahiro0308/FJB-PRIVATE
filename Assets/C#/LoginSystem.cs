@@ -59,7 +59,7 @@ public class LoginSystem : MonoBehaviour
 
                     if (response.status == "success")
                     {
-                        PlayerPrefs.SetString("userid", userIdInput.text.Trim());
+                        PlayerPrefs.SetString("username", userIdInput.text.Trim());
                         PlayerPrefs.SetString("UserLoggedIn", "login");
                         PlayerPrefs.Save();
                         SceneManager.LoadScene("Top");

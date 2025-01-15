@@ -19,7 +19,7 @@ public class FriendRequest : MonoBehaviour
     private IEnumerator SendFriendRequestCoroutine()
     {
         string receiverId = receiverUserId.text;
-        string requestUserid = PlayerPrefs.GetString("UserId", "");
+        string requestUserid = PlayerPrefs.GetString("username", "");
         if (requestUserid == receiverId)
         {
             Debug.LogWarning("Cannot add yourself as a friend.");

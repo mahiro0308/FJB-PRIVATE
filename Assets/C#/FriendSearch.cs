@@ -23,7 +23,7 @@ public class FriendSearch : MonoBehaviour
 
     private void Start()
     {
-        userid = PlayerPrefs.GetString("userid", ""); // デフォルト値を空文字列に設定
+        userid = PlayerPrefs.GetString("username", ""); // デフォルト値を空文字列に設定
         addFriendButton.gameObject.SetActive(false); // フレンド追加ボタンを非表示に設定
         friendIdDisplayText.text = "";              // 初期状態でテキストを空にする
     }
