@@ -20,7 +20,7 @@ public class CameraCapture : MonoBehaviour
     public Text resultText;
     public Button scoreButton;
 
-    private const string serverUrl = "https://172.20.10.4:8888/predict";
+    private const string serverUrl = "https://172.20.10.3:8888/predict";
 
     void Start()
     {

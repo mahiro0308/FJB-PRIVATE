@@ -1,6 +1,6 @@
 using UnityEngine;
 using UnityEngine.Networking;
-using TMPro;
+using UnityEngine.UI; // Legacy Text 用
 using System.Collections.Generic;
 using System.Collections;
 
@@ -12,35 +12,44 @@ public class FriendData
 }
 
 [System.Serializable]
-public class FriendList
+public class FriendListResponse
 {
     public List<FriendData> friends;
 }
 
 public class FriendListManager : MonoBehaviour
 {
-    public GameObject buttonPrefab;  // ボタンのプレハブ
+    public GameObject FriendText;  // フレンドリスト用ボタンのプレハブ
+
     public Transform contentParent; // ScrollViewのContent
 
     private const string URL = "https://requin.jp/FJB/PHP/friendList.php";
-    public string userid = CheckLoginOnStart.userid;  // ここでuseridが正しく取得できていることを確認してください。
+    private GameObject buttonPrefab;
+    private string username;
 
     void Start()
     {
-        if (!string.IsNullOrEmpty(userid))
+        // プレハブを設定
+        buttonPrefab = FriendText;
+
+        // UserIDを取得
+        username = PlayerPrefs.GetString("username", "");
+        if (!string.IsNullOrEmpty(username))
         {
-            StartCoroutine(GetFriendList(userid)); // ユーザーIDを指定
+            StartCoroutine(GetFriendList(username)); // フレンドリストを取得
         }
         else
         {
-            Debug.LogError("User ID is null or empty.");
+            Debug.LogError("ユーザーIDが空です。PlayerPrefs で 'username' を確認してください。");
         }
     }
 
     IEnumerator GetFriendList(string userId)
     {
         WWWForm form = new WWWForm();
-        form.AddField("userid", userId);
+        form.AddField("username", userId);
+
+        Debug.Log("サーバーへのリクエスト開始: " + userId);
 
         using (UnityWebRequest request = UnityWebRequest.Post(URL, form))
         {
@@ -49,45 +58,61 @@ public class FriendListManager : MonoBehaviour
             if (request.result == UnityWebRequest.Result.Success)
             {
                 string jsonResponse = request.downloadHandler.text;
-                FriendList friendList = JsonUtility.FromJson<FriendList>(jsonResponse);
+                Debug.Log("サーバーからのレスポンス: " + jsonResponse);
 
-                if (friendList != null && friendList.friends != null)
+                try
                 {
-                    PopulateFriendList(friendList.friends);
+                    FriendListResponse friendList = JsonUtility.FromJson<FriendListResponse>(jsonResponse);
+
+                    if (friendList != null && friendList.friends != null && friendList.friends.Count > 0)
+                    {
+                        PopulateFriendList(friendList.friends);
+                    }
+                    else
+                    {
+                        Debug.LogWarning("フレンドが見つからないか、レスポンスが無効です。");
+                    }
                 }
-                else
+                catch (System.Exception e)
                 {
-                    Debug.LogWarning("No friends found or invalid response.");
+                    Debug.LogError("JSON レスポンスの解析に失敗しました: " + e.Message);
                 }
             }
             else
             {
-                Debug.LogError("Failed to fetch friend list: " + request.error);
+                Debug.LogError("フレンドリストの取得に失敗しました: " + request.error);
             }
         }
     }
 
     void PopulateFriendList(List<FriendData> friends)
     {
-        // 既存のボタンを消去
+        // Contentの子オブジェクトをすべて削除
         foreach (Transform child in contentParent)
         {
             Destroy(child.gameObject);
         }
 
-        // 友達のリストを表示
+        // フレンドリストを表示
         foreach (var friend in friends)
         {
-            GameObject button = Instantiate(buttonPrefab, contentParent);
-            button.GetComponentInChildren<TextMeshProUGUI>().text = friend.name; // TextMeshProUGUIのテキストを設定
+            // ボタンプレハブを生成
+            GameObject buttonObj = Instantiate(FriendText, contentParent);
 
-            // ボタンにクリックイベントを設定
-            button.GetComponent<UnityEngine.UI.Button>().onClick.AddListener(() => OnFriendSelected(friend));
+            // ボタン内のテキストコンポーネントを取得
+            Text textComponent = buttonObj.GetComponentInChildren<Text>();
+
+            if (textComponent != null)
+            {
+                textComponent.text = "ユーザーID:"+friend.name; // テキストを設定
+                Debug.Log($"フレンド名: {friend.name} を設定しました。");
+            }
+            else
+            {
+                Debug.LogError("プレハブ内に Text コンポーネントが見つかりません。");
+            }
         }
-    }
+  
 
-    void OnFriendSelected(FriendData friend)
-    {
-        Debug.Log($"Selected Friend: {friend.name}");
-    }
+}
 }
