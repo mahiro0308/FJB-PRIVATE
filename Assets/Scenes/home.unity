@@ -923,6 +923,7 @@ GameObject:
   - component: {fileID: 379528137}
   - component: {fileID: 379528138}
   - component: {fileID: 379528139}
+  - component: {fileID: 379528140}
   m_Layer: 0
   m_Name: friendManager
   m_TagString: Untagged
@@ -1022,6 +1023,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   FriendListPanel: {fileID: 2008994474}
   FriendAcceptPanel: {fileID: 77323379}
+--- !u!114 &379528140
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 379528133}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62086e9745505744b93fd0616adcab87, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  buttonPrefab: {fileID: 6302837237238701019, guid: fa843e18c19383e42a201f4d50d04466,
+    type: 3}
 --- !u!1 &437928117
 GameObject:
   m_ObjectHideFlags: 0
@@ -4017,7 +4032,7 @@ PrefabInstance:
     - target: {fileID: 8877109094829261935, guid: 94ddf66c38c359c45b28364c5e7aa473,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -0.000006496228
+      value: -0.0005945414
       objectReference: {fileID: 0}
     - target: {fileID: 8969995691807779752, guid: 94ddf66c38c359c45b28364c5e7aa473,
         type: 3}

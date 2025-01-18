@@ -102,6 +102,12 @@ public class FriendListManager : MonoBehaviour
             // ボタン内のテキストコンポーネントを取得
             Text textComponent = buttonObj.GetComponentInChildren<Text>();
 
+            Button friendNameText = buttonObj.GetComponentInChildren<Button>();
+
+            Text friendnamesaver = friendNameText.GetComponentInChildren<Text>();
+
+            friendnamesaver.text = friend.name;
+            Debug.Log(friendnamesaver.text);
             if (textComponent != null)
             {
                 textComponent.text = "ユーザーID:"+friend.name; // テキストを設定
